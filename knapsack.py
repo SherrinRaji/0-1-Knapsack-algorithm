@@ -14,14 +14,19 @@ def __solution(num_of_iterations):
     for i in range(num_of_iterations):
         fitness_history[i] = ga.calculate_fitness()
         ga.population = __form_new_population(ga)
-    
-    print("Final population: \n{}".format(ga.population))
-    #calculate fitness of last gen
+
+    print("\nFinal population: \n\n{}".format(ga.population))
+    # calculate fitness of last gen
     last_population_fitness = ga.calculate_fitness()
-    print("Fitness of the Final population: \n{}".format(last_population_fitness))
-    
-    #The set of items that give the optimal result
-    
+    print("\nFitness of the Final population: \n\n{}".format(last_population_fitness))
+
+    # The set of items that give the optimal result
+    max_fitness_pos = np.where(
+        last_population_fitness == np.max(last_population_fitness))
+    items = ga.get_knapsack_item(ga.population[max_fitness_pos[0][0]])
+    print("\nMaximum value is: \n\n{} \n Items in knapsack: \n\n{}".format(
+        last_population_fitness[max_fitness_pos[0][0]], items.astype(int)))
+
 
 def __form_new_population(ga):
     pop_size = (SOLUTIONS_PER_POP, ga.chromosome_length)
@@ -32,7 +37,7 @@ def __form_new_population(ga):
     population = np.empty(pop_size)
     population[0:parents.shape[0]] = parents
     population[parents.shape[0]:] = mutants
-    return population
+    return population.astype(int)
 
 
 def get_input():
@@ -55,7 +60,13 @@ class GeneticAlgorithm:
         pop_size = (SOLUTIONS_PER_POP, self.chromosome_length)
         print(str.format("Population size: {}", pop_size))
         self.population = np.random.randint(2, size=pop_size)
-        print(self.population)
+        print("Initial population: \n\n{}".format(self.population.astype(int)))
+
+    def get_knapsack_item(self, chromosome):
+        items = np.empty(chromosome.shape)
+        items = [
+            x*item.value for x in chromosome for item in self.item_list if x == 1]
+        return np.array(items)
 
     def calculate_fitness(self):
         self.fitness = np.empty(self.population.shape[0])
@@ -78,7 +89,7 @@ class GeneticAlgorithm:
             max_fitness_idx = np.where(self.fitness == np.max(self.fitness))
             parents[i] = self.population[max_fitness_idx[0][0]]
             self.fitness[max_fitness_idx[0][0]] = -99999
-        return parents
+        return parents.astype(int)
 
 # One point crossover between two parents in one loop
     def crossover(self, parents):
@@ -99,7 +110,7 @@ class GeneticAlgorithm:
                        0:crossover_point] = parents[p2, 0: crossover_point]
             offsprings[i+1, crossover_point:
                        ] = parents[p1, crossover_point:]
-        return offsprings
+        return offsprings.astype(int)
 
     def mutation(self, offsprings):
         mutants = np.empty((offsprings.shape))
@@ -115,7 +126,7 @@ class GeneticAlgorithm:
             else:
                 mutants[i, int_random_value] = 0
 
-        return mutants
+        return mutants.astype(int)
 
 
 if __name__ == "__main__":
