@@ -1,20 +1,42 @@
 from audioop import cross
+import re
 import utility
 import numpy as np
+import random as rd
 from constants import *
 import pandas
 
 
-def __start():
-    GA = GeneticAlgorithm()
-    GA.initial_population()
-    print(GA.calculate_fitness())
-    GA.selection()
-    GA.crossover()
+def __solution(num_of_iterations):
+    ga = GeneticAlgorithm()
+    ga.initial_population()
+    fitness_history = np.empty((num_of_iterations, ga.population.shape[0]))
+    for i in range(num_of_iterations):
+        fitness_history[i] = ga.calculate_fitness()
+        ga.population = __form_new_population(ga)
+    
+    print("Final population: \n{}".format(ga.population))
+    #calculate fitness of last gen
+    last_population_fitness = ga.calculate_fitness()
+    print("Fitness of the Final population: \n{}".format(last_population_fitness))
+    
+    #The set of items that give the optimal result
+    
+
+def __form_new_population(ga):
+    pop_size = (SOLUTIONS_PER_POP, ga.chromosome_length)
+
+    parents = ga.selection()
+    offsprings = ga.crossover(parents)
+    mutants = ga.mutation(offsprings)
+    population = np.empty(pop_size)
+    population[0:parents.shape[0]] = parents
+    population[parents.shape[0]:] = mutants
+    return population
 
 
 def get_input():
-    return utility.to_knapsack_item_list('low-dimensional/f1_l-d_kp_10_269')
+    return utility.to_knapsack_item_list('low-dimensional/f6_l-d_kp_10_60')
 
 
 class Item:
@@ -28,8 +50,6 @@ class GeneticAlgorithm:
         self.population = None
         self.fitness = None
         self.item_list, self.max_weight, self.chromosome_length = get_input()
-        self.num_generations = 50
-        self.parents = None
 
     def initial_population(self):
         pop_size = (SOLUTIONS_PER_POP, self.chromosome_length)
@@ -50,36 +70,53 @@ class GeneticAlgorithm:
                 self.fitness[idx] = 0
         return self.fitness.astype(int)
 
+# Getting the top four from population as parents for a crossover.
     def selection(self):
         num_of_parents = int(SOLUTIONS_PER_POP/2)
-        self.parents = np.empty((num_of_parents, self.population.shape[1]))
+        parents = np.empty((num_of_parents, self.population.shape[1]))
         for i in range(num_of_parents):
             max_fitness_idx = np.where(self.fitness == np.max(self.fitness))
-            self.parents[i] = self.population[max_fitness_idx[0][0]]
+            parents[i] = self.population[max_fitness_idx[0][0]]
             self.fitness[max_fitness_idx[0][0]] = -99999
-        print(self.parents)
+        return parents
 
-    def crossover(self):
-        num_offspring = SOLUTIONS_PER_POP - self.parents.shape[0]
+# One point crossover between two parents in one loop
+    def crossover(self, parents):
+        num_offspring = SOLUTIONS_PER_POP - parents.shape[0]
         offsprings = np.empty((num_offspring, self.population.shape[1]))
-        print("offspring shape: ",offsprings.shape)
-        # one-point crossover with bit point 1/2 of total bit size of a chromosome
-        ctr = 0
-        crossover_point = int(self.chromosome_length/2)
-        for i in range(self.parents.shape[0]):
-            p1 = i % self.parents.shape[0]
-            p2 = (i+1) % self.parents.shape[0]
-            offsprings[i:0, crossover_point] = self.parents[p1:0,
-                                                              crossover_point]
-            offsprings[i:crossover_point,
-                       ] = self.parents[p2:crossover_point, ]
-            offsprings[i+1:0,
-                       crossover_point] = self.parents[p2:0, crossover_point]
-            offsprings[i+1:crossover_point,
-                       ] = self.parents[p1:crossover_point, ]
-            i += 2
 
-        print(offsprings)
+        # one-point crossover with bit point 1/2 of total bit size of a chromosome
+        crossover_point = int(self.chromosome_length/2)
+        for i in range(0, parents.shape[0], 2):
+            p1 = i % parents.shape[0]
+            p2 = (i+1) % parents.shape[0]
+
+            offsprings[i, 0:crossover_point] = parents[p1,
+                                                       0:crossover_point]
+            offsprings[i, crossover_point:,
+                       ] = parents[p2, crossover_point:]
+            offsprings[i+1,
+                       0:crossover_point] = parents[p2, 0: crossover_point]
+            offsprings[i+1, crossover_point:
+                       ] = parents[p1, crossover_point:]
+        return offsprings
+
+    def mutation(self, offsprings):
+        mutants = np.empty((offsprings.shape))
+        mutation_rate = 0.4
+        for i in range(mutants.shape[0]):
+            random_value = rd.random()
+            mutants[i, :] = offsprings[i, :]
+            if random_value > mutation_rate:
+                continue
+            int_random_value = rd.randint(0, offsprings.shape[1]-1)
+            if mutants[i, int_random_value] == 0:
+                mutants[i, int_random_value] = 1
+            else:
+                mutants[i, int_random_value] = 0
+
+        return mutants
+
 
 if __name__ == "__main__":
-    __start()
+    __solution(100)
