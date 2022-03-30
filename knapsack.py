@@ -36,7 +36,7 @@ def __form_new_population(ga):
 
 
 def get_input():
-    return utility.to_knapsack_item_list('low-dimensional/f6_l-d_kp_10_60')
+    return utility.to_knapsack_item_list(FILE_PATH)
 
 
 class Item:
