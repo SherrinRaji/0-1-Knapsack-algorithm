@@ -2,3 +2,6 @@ venv
 low-dimensional
 __pycache__/
 requirement.in
+.DS_Store
+large_scale-optimum/
+large_scale/
