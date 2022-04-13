@@ -3,16 +3,15 @@ import random as rd
 from constants import *
 from knapsack import Knapsack
 
+
 class GeneticAlgorithm:
-    def __init__(self,**kwargs):
+    def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
-        
 
     def initial_population(self):
         pop_size = (self.population_size, self.chromosome_length)
         print(str.format("Population size: {}", pop_size))
         self.population = np.random.randint(2, size=pop_size)
-        
         print("Initial population: \n\n{}".format(self.population.astype(int)))
 
     def get_knapsack_items(self, chromosome):
@@ -36,9 +35,17 @@ class GeneticAlgorithm:
         return self.fitness.astype(int)
 
 # Getting the top four from population as parents for a crossover.
-    def selection(self,selection_rate:float=0.5):
+    def selection(self, selection_rate: float = 0.5):
         num_of_parents = int(self.population_size*selection_rate)
         parents = np.empty((num_of_parents, self.population.shape[1]))
+
+        if(np.max(self.fitness) == 0):
+            return None
+        termination_factor = len(
+            np.where(self.fitness == np.max(self.fitness)))
+        if(termination_factor > int(0.5*self.population_size)):
+            return None
+
         for i in range(num_of_parents):
             max_fitness_idx = np.where(self.fitness == np.max(self.fitness))
             parents[i] = self.population[max_fitness_idx[0][0]]
@@ -47,6 +54,8 @@ class GeneticAlgorithm:
 
 # One point crossover between two parents in one loop
     def crossover(self, parents):
+        if(parents is None):
+            return None
         num_offspring = self.population_size - parents.shape[0]
         offsprings = np.empty((num_offspring, self.population.shape[1]))
 
@@ -68,6 +77,8 @@ class GeneticAlgorithm:
         return offsprings.astype(int)
 
     def mutation(self, offsprings):
+        if offsprings is None:
+            return None
         mutants = np.empty((offsprings.shape))
         mutation_rate = 0.4
         for i in range(mutants.shape[0]):
@@ -89,6 +100,7 @@ class GeneticAlgorithm:
             (self.num_of_iterations, self.population.shape[0]))
         for i in range(self.num_of_iterations):
             self.fitness_history[i] = self.calculate_fitness()
+            print("fitness at {} -> {}".format(i, self.fitness_history[i]))
             self.form_new_population()
 
         print("\nFinal population: \n\n{}".format(self.population))
@@ -103,6 +115,7 @@ class GeneticAlgorithm:
         items = self.get_knapsack_items(self.population[max_fitness_pos[0][0]])
         print("\nMaximum value is: \n\n{} \n Items in knapsack: \n\n{}".format(
             last_population_fitness[max_fitness_pos[0][0]], items.astype(int)))
+        return last_population_fitness[max_fitness_pos[0][0]]
 
     def form_new_population(self):
         pop_size = (self.population_size, self.chromosome_length)
@@ -111,27 +124,31 @@ class GeneticAlgorithm:
         offsprings = self.crossover(parents)  # from parent crossover
         # flippin some of the bits in some individuals
         mutants = self.mutation(offsprings)
+        if mutants is None:
+            return None
         population = np.empty(pop_size)
         population[0:parents.shape[0]] = parents
         population[parents.shape[0]:] = mutants
         # some elite individual and other from crossover
         self.population = population.astype(int)
+        return self.population
 
 
 def __solution(num_of_iterations):
     knapsack_object = Knapsack(FILE_PATH)
     ga_data = {
-        'population_size' : knapsack_object.length ** 2,
+        'population_size': SOLUTIONS_PER_POP,
         'population': None,
         'fitness': None,
         'item_list': knapsack_object.item_list,
-        'max_weight' : knapsack_object.wmax,
+        'max_weight': knapsack_object.wmax,
         'chromosome_length': knapsack_object.length,
         'fitness_history': None,
         'num_of_iterations': num_of_iterations
     }
     ga = GeneticAlgorithm(**ga_data)
     ga.solution()
-    
+
+
 if __name__ == "__main__":
     __solution(NUM_OF_GENERATIONS)

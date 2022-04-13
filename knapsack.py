@@ -16,7 +16,7 @@ class Knapsack:
         self.item_list = []
         with open(file_path, 'r') as file_reader:
             first = file_reader.readline().split()
-            self.length, self.wmax = int(first[0]), int(first[1])
+            self.length, self.wmax, self.answer = int(first[0]), int(first[1]), int(first[2])
             for line in file_reader:
                 self.item_list.append(
                     Item(int(line.split()[0]), int(line.split()[1])))
