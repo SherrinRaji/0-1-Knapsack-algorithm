@@ -10,14 +10,15 @@ Heuristic algorithms to solve 0/1 knapsack problem
 `python -m venv venv`\
 `source venv/bin/activate`\
 `pip install --upgrade pip`\
-`pip install -r requirements.txt`\
+`pip install -r requirements.txt`
 
 - To run results follow the steps in *2*.
 - Run the one of the following command depending on which algorithm you would like to test.
 
-`python3 genetic_algorithm.py`
-`python3 greedy_genetic_algorithm.py`
+`python3 genetic_algorithm.py`\
+`python3 greedy_genetic_algorithm.py`\
 `python3 modified_genetic_algorithm.py`
+
 - To get the graphs to analyze the performance, run the below command.
 
 `python3 plot_graph.py`
