@@ -7,10 +7,10 @@ Heuristic algorithms to solve 0/1 knapsack problem
 ## 1. STEPS for SETUP (MacOS)
 - Create virtual environment and install the required packages in 'requirement.txt'
 
-`python -m venv venv`
-`source venv/bin/activate`
-`pip install --upgrade pip`
-`pip install -r requirements.txt`
+`python -m venv venv`\
+`source venv/bin/activate`\
+`pip install --upgrade pip`\
+`pip install -r requirements.txt`\
 
 - To run results follow the steps in *2*.
 - Run the one of the following command depending on which algorithm you would like to test.
