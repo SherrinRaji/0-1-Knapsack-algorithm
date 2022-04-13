@@ -24,7 +24,7 @@ Heuristic algorithms to solve 0/1 knapsack problem
 
 ## 2. STEPS to reproduce results
 - Create a folder with inputs in the format as in the link below.
-[title](http://artemisa.unicauca.edu.co/~johnyortega/instances_01_KP/)
+[Sample Dataset](http://artemisa.unicauca.edu.co/~johnyortega/instances_01_KP/)
 
 - Add the path to the file in constants.py -> *FILE_PATH'*
 
@@ -76,13 +76,13 @@ Items in knapsack:
 
 1. Small inputs ranging from 0-20
 
-	![alt text](saved_experiments/small.png)
+![alt text](saved_experiments/small.png)
 
-  ![alt text](saved_experiments/small_fitness.png)
+![alt text](saved_experiments/small_fitness.png)
 
 2. Inputs ranging from 100-500 
 
- ![alt text](saved_experiments/large_fitness1.png)
+![alt text](saved_experiments/large_fitness1.png)
 
 3. Inputs ranging from 1000-10000
 
